@@ -195,12 +195,22 @@ describe('UserController', function(){
       testSchema.Question().create({id: 1, text: "question 1", created_at: now, updated_at: now}, function(){});
       testSchema.Question().create({id: 2, text: "question 2", created_at: now, updated_at: now}, function(){});
       
-      testController.firstQuestion({job_type_id: 1}, function(text) {
+      testController.firstQuestion({job_type_id: 1, user_id: 1}, function(text) {
         assert.equal(text, "question 1");
-        done();
+        setTimeout(function() {
+          testSchema.CurrentUserState().find({user_id: 1}, function(err, results) {
+            assert.isNotNull(results[0]);
+            assert.equal(results[0].job_question_id, 1);
+            assert.equal(results[0].job_type_id, 1);
+            assert.equal(results[0].user_id, 1);
+            assert.isNotNull(results[0].last_message_recieved_at);
+            done();
+          });
+        }, 10);
       })
     });
   });
+
   // 
   // sampleTest
   // describe("#handleText", function() {
