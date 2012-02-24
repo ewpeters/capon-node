@@ -247,7 +247,7 @@ describe('UserController', function(){
 
       setTimeout(function() {
           testController.nextQuestion({job_question_id: 4, job_type_id: 1, user_id: 1}, function(question) {
-            assert.deepEqual(question, ["Great, thank you for the interest in Philz Coffee and we will contact you when a position opens up."]);
+            assert.deepEqual(question, ["Great, thank you for the interest. We will contact you when a position opens up."]);
             assert.isTrue(destroyStateCalled);
             done();
           });
