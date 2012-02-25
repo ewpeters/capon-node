@@ -51,4 +51,5 @@ function onRequest(request, response) {
   });
 };
 
-http.createServer(onRequest).listen(80);
+var port = process.env.PORT || 80
+http.createServer(onRequest).listen(port);
