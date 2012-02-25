@@ -26,29 +26,29 @@ function onRequest(request, response) {
   
   request.on('end', function() {
     var dataHash = querystring.parse(data);
-    
-    userController.handleMessage(dataHash.From, dataHash.Body, 1, function(message) {
-      response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-      response.write("<Response>");
-      
-      response.write("<Sms>")
-      for (var i in message) {
-        var line = message[i];
-        response.write(line);
-        response.write("\n");
-      }
-      response.write("</Sms>");
-      response.write("</Response>")
-      response.end();
-    })
 
     
-  })
-  
-  // <Response>
-  //     <Sms>Hello, Mobile Monkey</Sms>
-  // </Response>
-  
-}
+    if (dataHash.SmsStatus == 'sent') {
+      console.log("got sent")
+      userController.updateUserStateFromNumber(dataHash.To, {location_id: 1});
+    } else {
+      console.log("From: " + dataHash.From + " Body: " + dataHash.Body);
+      userController.handleMessage(dataHash.From, dataHash.Body, 1, function(message) {
+        response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        response.write("<Response>");
+
+        response.write("<Sms>");
+        for (var i in message) {
+          var line = message[i];
+          response.write(line);
+          response.write("\n");
+        }
+        response.write("</Sms>");
+        response.write("</Response>");
+        response.end();
+      });
+    };
+  });
+};
 
 http.createServer(onRequest).listen(80);

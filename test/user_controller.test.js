@@ -1,5 +1,8 @@
 var assert = require('chai').assert;
-
+RestClient = require('twilio').RestClient;
+RestClient.prototype.sendSmS = function() {
+  
+}
 describe('UserController', function(){
   var UserController = require('../lib/user_controller');
   var Schema = require('../lib/schema');
@@ -19,6 +22,7 @@ describe('UserController', function(){
   var FirstQuestion    = testController.firstQuestion;
   var DestroyUserState = testController.destroyUserState;
   var LogResponse      = testController.logResponse;
+  var SendMessage      = testController.sendMessage;
 
   beforeEach(function(done) {
     testSchema.User().destroy({}, function(err, results) {
@@ -62,18 +66,18 @@ describe('UserController', function(){
   });
 
   describe("#handleMessage", function() {
-    it("should display the welcome message with jobs if the current user state is null and call updateUserState", function(done) {
+    it("should display the welcome message with jobs if the current user state is null and call sendMessage after callback", function(done) {
       // TODO: Read this from a config file
-      var userStateCalled = false;
-      var welcomeMessage = ['Welcome to Philz', 'Here are some jobs we have available:', '0 for test job'];
+      var sendMessageCalled = false;
+      var welcomeMessage = ['Welcome to Philz'];
       var uid = "555555555";
   
       testController.getUser = function(n, callback) {
         callback({current_user_state: null});
       };
       
-      testController.updateUserState = function() {
-        userStateCalled = true;
+      testController.sendMessage = function() {
+        sendMessageCalled = true;
       };
   
       testController.getLocation = function(n, callback) {
@@ -82,17 +86,20 @@ describe('UserController', function(){
   
       testController.handleMessage(uid, "", 1, function(message) {
         assert.deepEqual(welcomeMessage, message);
-        assert.isTrue(userStateCalled);
-        done();
+        assert.isFalse(sendMessageCalled);
       });
+      
+      setTimeout(function() {
+        assert.isTrue(sendMessageCalled);
+        done();
+      }, 20);
     });
   });
-
   describe("#handleMessage", function() {
-    it("should display the welcome message if the user is in a different location and call updateUserState", function(done) {
+    it("should display the welcome message if the user is in a different location and call sendMessage after callback", function(done) {
       // TODO: Read this from a config file
-      var userStateCalled = false;
-      var welcomeMessage = ['Welcome to Philz', 'Here are some jobs we have available:', '0 for test job'];
+      var sendMessageCalled = false;
+      var welcomeMessage = ['Welcome to Philz'];
       var uid = "555555555";
   
       testController.getUser = function(n, callback) {
@@ -103,15 +110,20 @@ describe('UserController', function(){
         callback({name: "Philz", location_jobs: [{job_type: {name: "test job"}}]});
       };
       
-      testController.updateUserState = function() {
-        userStateCalled = true
+      testController.sendMessage = function() {
+        sendMessageCalled = true;
       };
   
       testController.handleMessage(uid, "", 1, function(message) {
         assert.deepEqual(welcomeMessage, message);
-        assert.isTrue(userStateCalled);
-        done();
+        assert.isFalse(sendMessageCalled);
+        
       });
+      
+      setTimeout(function() {
+        assert.isTrue(sendMessageCalled);
+        done();
+      }, 20);
     });
   });
   
@@ -181,11 +193,12 @@ describe('UserController', function(){
   
   // tests for UserController#getUser
   describe("#getUser", function() {
-    it('should create a new user for a uid not seen before', function(done) {
+    it('should create and return new user for a uid not seen before', function(done) {
       var uid = "555555555"; 
-      testController.getUser(uid, function() {
+      testController.getUser(uid, function(a) {
+        var gotUser = a;
         testSchema.User().find({ 'uid': uid }, function(err, results) {
-          assert.isNotNull(results[0]);
+          assert.deepEqual(gotUser, results[0]);
           done();
         });
       });
@@ -330,7 +343,7 @@ describe('UserController', function(){
   });
   
   describe("#updateUserState", function() {
-    it('should create a new user state if one doesnt exist for a user', function(done) {
+    it('should udate the current user state if one exists for a user', function(done) {
       testController.getUser = function(n, callback) {
         callback({id: 1});
       };
@@ -350,6 +363,37 @@ describe('UserController', function(){
     });
   });
 
+  // tests for UserController#updateUserStateFromNumber
+  describe("#updateUserStateFromNumber", function() {
+    it('should NOT create a new user state if one doesnt exist for a number', function(done) {
+
+      testController.updateUserStateFromNumber(1, {});
+      setTimeout(function () {
+        testSchema.CurrentUserState().find({user_id: 1}, function(err, results) {
+          assert.isNull(results[0]);
+          done();
+        })
+      }, 100)
+    });
+  });
+
+  describe("#updateUserStateFromNumber", function() {
+    it('should udate the current user state if one exists for a number', function(done) {
+      testSchema.User().create({id: 1, uid: 2, created_at: new Date(), updated_at: new Date()}, function(e,r){});
+      testSchema.CurrentUserState().create({user_id: 1, location_id: 1}, function(err, results) {
+        testController.updateUserStateFromNumber(2, {location_id: 2});
+      });
+  
+      setTimeout(function () {
+        testSchema.CurrentUserState().find({user_id: 1}, function(err, results) {
+          assert.isNotNull(results[0]);
+          assert.equal(results[0].user_id, 1);
+          assert.equal(results[0].location_id, 2);
+          done();
+        })
+      }, 25)
+    });
+  });
   // tests for UserController#destroyUserState
   describe("#destroyUserState", function() {
     it('should destroy the user state specificed by user_id', function(done) {
@@ -426,6 +470,7 @@ describe('UserController', function(){
     testController.firstQuestion = FirstQuestion;
     testController.destroyUserState = DestroyUserState;
     testController.logResponse = LogResponse;
+    testController.sendMessage = SendMessage;
     done();
   });
 });
