@@ -55,7 +55,7 @@ function onRequest(request, response) {
         response.end();
       } else {
         console.log("From: " + dataHash.From + " Body: " + dataHash.Body);
-        userController.handleMessage(dataHash.From, dataHash.Body, locationId, function(message) {
+        userController.handleMessage(dataHash.From, dataHash.Body, parseInt(locationId), function(message) {
           response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
           response.write("<Response>");
     
