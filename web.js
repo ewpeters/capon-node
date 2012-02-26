@@ -31,7 +31,7 @@ function onRequest(request, response) {
     response.write("Invalid URL");
     
     response.end();
-    return
+    return;
   }
 
   var data = [];
@@ -39,15 +39,14 @@ function onRequest(request, response) {
       data.push(chunk);
       if (data.length > 1e6) {
         // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-        console.log("AM I HERE?");
         response.write("Stop spamming!");
         request.end();
-      }
+      };
     });
-    
+
     request.on('end', function() {
       var dataHash = querystring.parse(data.join(''));
-    
+
       console.log("Got Request")
       console.log(request.url)
       console.log(dataHash);
@@ -62,7 +61,7 @@ function onRequest(request, response) {
         userController.handleMessage(dataHash.From, dataHash.Body, parseInt(locationId), function(message) {
           response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
           response.write("<Response>");
-    
+
           response.write("<Sms>");
           console.log("Responding with:");
           console.log(message);
