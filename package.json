@@ -5,7 +5,7 @@
   "author": "Erik Petersen <erik.w.petersen86@gmail.com>",
   "homepage": "http://capon.heroku.com",
   "dependencies": {
-    "FastLegS": "0.1.2",
+    "FastLegS": "https://github.com/ewpeters/FastLegS/tarball/master",
     "chai":     "0.3.3",
     "twilio": ">= 0.0.0",
     "express": ">= 0.0.0"

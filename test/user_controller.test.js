@@ -3,16 +3,13 @@ RestClient = require('twilio').RestClient;
 RestClient.prototype.sendSmS = function() {
   
 }
+// tcp://localhost:5432/capon_test
 describe('UserController', function(){
   var UserController = require('../lib/user_controller');
   var Schema = require('../lib/schema');
 
-  var testSchema = new Schema({
-    database: "capon_test",
-    user: "capon",
-    password: "capon",
-    host: "localhost"
-  });
+  var testSchema = new Schema("tcp://localhost:5432/capon_test");
+
   var testController = new UserController(testSchema, {});
   // methods I stub at some point
   var GetUser          = testController.getUser;
