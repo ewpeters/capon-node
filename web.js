@@ -56,12 +56,14 @@ function onRequest(request, response) {
       } else {
         console.log("From: " + dataHash.From + " Body: " + dataHash.Body);
         console.log("With location id: ");
-        console.log(parseInt(locationId));
+        console.log(parseInt(locationId)); 
         userController.handleMessage(dataHash.From, dataHash.Body, parseInt(locationId), function(message) {
           response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
           response.write("<Response>");
     
           response.write("<Sms>");
+          console.log("Responding with:");
+          console.log(message);
           for (var i in message) {
             var line = message[i];
             response.write(line);
