@@ -27,7 +27,9 @@ function onRequest(request, response) {
     locationId = matchLoc[1];
   } else {
     response.writeHead(200, {"Content-Type": "text/html"});
+    console.log("ummmmm");
     response.write("Invalid URL");
+    
     response.end();
     return
   }
@@ -37,6 +39,7 @@ function onRequest(request, response) {
       data.push(chunk);
       if (data.length > 1e6) {
         // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
+        console.log("AM I HERE?");
         response.writeHead(200, {"Content-Type": "text/html"});
         response.write("Stop spamming!");
         request.end();
