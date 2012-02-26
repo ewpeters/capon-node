@@ -1,8 +1,8 @@
 var assert = require('chai').assert;
 RestClient = require('twilio').RestClient;
-RestClient.prototype.sendSmS = function() {
-  
-}
+// RestClient.prototype.sendSms = function() {
+//   console.log("sendSMS")
+// };
 // tcp://localhost:5432/capon_test
 describe('UserController', function(){
   var UserController = require('../lib/user_controller');
@@ -21,6 +21,7 @@ describe('UserController', function(){
   var LogResponse      = testController.logResponse;
   var SendMessage      = testController.sendMessage;
   var QuestionTyper    = testController.questionTyper;
+  var MyRestClient     = testController.restClient();
 
   beforeEach(function(done) {
     testSchema.User().destroy({}, function(err, results) {
@@ -31,7 +32,9 @@ describe('UserController', function(){
               testSchema.CurrentUserState().destroy({}, function(err, results) {
                 testSchema.Answer().destroy({}, function(err, results) {
                   testSchema.UserAnswer().destroy({}, function(err, results) {
-                    done();
+                    testSchema.Number().destroy({}, function(err, results) {
+                      done();
+                    });
                   });
                 });
               });
@@ -69,8 +72,6 @@ describe('UserController', function(){
 
   describe("#handleMessage", function() {
     it("should display the welcome message with jobs if the current user state is null and call sendMessage after callback", function(done) {
-      this.timeout(3000);
-      // TODO: Read this from a config file
       var sendMessageCalled = false;
       var welcomeMessage = ['Welcome to Philz'];
       var location = {name: "Philz", location_jobs: [{job_type: {name: "test job"}, page_number: -1}]};
@@ -105,7 +106,6 @@ describe('UserController', function(){
   
   describe("#handleMessage", function() {
     it("should display the welcome message if the user is in a different location and call sendMessage about a half second after callback", function(done) {
-      // TODO: Read this from a config file
       this.timeout(3000);
       var sendMessageCalled = false;
       var welcomeMessage = ['Welcome to Philz'];
@@ -141,7 +141,6 @@ describe('UserController', function(){
   
   describe("#handleMessage", function() {
     it("should display the welcome message, send the job type list with paging, and update current user state with a page number", function(done) {
-      // TODO: Read this from a config file
       this.timeout(3000);
       var sendMessageCalled = false;
       var welcomeMessage = ['Welcome to Philz'];
@@ -181,7 +180,6 @@ describe('UserController', function(){
   
   describe("#handleMessage", function() {
     it("should respond with the 2nd page of the job list if the current user state is on page 1 and there is a second page, and end paging (update user state and no M for more)", function(done) {
-      // TODO: Read this from a config file
       this.timeout(3000);
       var sendMessageCalled = false;
       var secondPage = ['1 for test job 2'];
@@ -214,7 +212,6 @@ describe('UserController', function(){
 
   describe("#handleMessage", function() {
     it("should respond with the 2nd page of the job list if the current user state is on page 1 and there is a second page, and continue paging (update user state and M for more)", function(done) {
-      // TODO: Read this from a config file
       this.timeout(3000);
       var sendMessageCalled = false;
       var secondPage = ['1 for test job 2', "M for More"];
@@ -747,12 +744,43 @@ describe('UserController', function(){
     });
   });
   
+  // tests for UserController#sentMessage
+  describe("#sentMessage", function() {
+    it('should call twillio reset client send sms', function(done) {
+      var smsCalled = false;
+      var loc = {id: 1};
+      var message = "hey";
+      var from = "+14157280972";
+      var to = "5555555555";
+
+      testSchema.Number().create({number: from, location_id: loc.id}, function(e, r) {});
+      var client = {};
+      client.sendSms = function(f, t, m, h, e, s) {      
+        assert.equal(f, from);
+        assert.equal(t, to);
+        assert.equal(m, message);
+        assert.equal(h, "http://24.6.38.198/" + loc.id);
+
+        assert.isNull(e);
+        assert.isNull(s);
+      };
+      
+
+      
+      testController.setRestClient(client)
+      testController.sendMessage(message, loc, to);
+      setTimeout(function() {
+        done();
+      }, 1005)
+    });
+  });
+
   // tests for UserController#getLocation
   describe("#getLocation", function() {
     it("should return the location specified by id", function(done) {
       var now = new Date();
       var location = {created_at: now, updated_at: now, employer_id: 0, name: "Test Location", street: "123", city: "Derp", state: "CA", zip: "94133", position: 1, location_jobs: []}
-  
+      
       testSchema.Location().create(location, function(err, loc) {
         testController.getLocation(loc.rows[0].id, function(myLoc) {
           location.id = loc.rows[0].id;
@@ -785,6 +813,7 @@ describe('UserController', function(){
     testController.logResponse = LogResponse;
     testController.sendMessage = SendMessage;
     testController.questionTyper = QuestionTyper;
+    testController.setRestClient(MyRestClient);
     done();
   });
 });
