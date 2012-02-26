@@ -9,10 +9,11 @@ process.addListener('uncaughtException', function (err, stack) {
 var UserController = require('./lib/user_controller');
 var Schema = require('./lib/schema');
 
+// gvughgqdyu:_Dfxp2ZjjBtcmxI4mhVD@ec2-50-16-197-136.compute-1.amazonaws.com/gvughgqdy
 var mySchema = new Schema({
-  database: "capon_development",
-  user: "capon",
-  host: "localhost"
+  database: "gvughgqdyu",
+  user: "gvughgqdyu",
+  host: "_Dfxp2ZjjBtcmxI4mhVD@ec2-50-16-197-136.compute-1.amazonaws.com"
 });
 var userController = new UserController(mySchema, {});
 
