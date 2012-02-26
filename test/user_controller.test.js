@@ -245,45 +245,61 @@ describe('UserController', function(){
 
   describe("#handleMessage", function() {
     it("should call nextQuestion if the current user state exists and is set to the current location", function(done) {
-  
+      var current_user_state = {location_id: 1, job_question_id: 1, job_type_id: 1};
+      var location = {id: 1,location_jobs: [], name: "Philz"}
       testController.getUser = function(n, callback) {
-        callback({current_user_state: {location_id: 1, job_question_id: 1}});
+        callback({current_user_state: current_user_state});
       };
   
       testController.getLocation = function(n, callback) {
-        callback({id: 1,location_jobs: []});
+        callback(location);
       };
   
       testController.updateUserState = function() {};
   
-      testController.nextQuestion = function(n, callback) {
+      testController.nextQuestion = function(state, msg, length, name, callback) {
+        assert.deepEqual(current_user_state, state);
+        assert.equal(location.name, name); 
+        assert.equal(length, 1);
         assert.isTrue(true);
         done();
       };
-  
-      testController.handleMessage("12313", "", 1, function(message) {});
+      
+      testSchema.JobQuestion().create({job_type_id: 1, question_id: 1, created_at: new Date(), updated_at: new Date(), position: 1}, function(e,r){});
+    
+      setTimeout(function() {
+        testController.handleMessage("12313", "", 1, function(message) {});
+      }, 35);
     });
   });
 
   describe("#handleMessage", function() {
     it("should call firstQueston if the current user state exists, is set to the current location, does not have a job question id, and has messaged a VALID job type", function(done) {
-  
+      var current_user_state = {location_id: 1, job_question_id: null};
+
       testController.getUser = function(n, callback) {
-        callback({current_user_state: {location_id: 1, job_question_id: null}});
+        callback({current_user_state: current_user_state});
       };
   
       testController.getLocation = function(n, callback) {
-        callback({id: 1, location_jobs: [{job_type: {name: "test job"}}]});
+        callback({id: 1, location_jobs: [{job_type: {name: "test job", id: 1}}]});
       };
   
       testController.updateUserState = function() {};
   
-      testController.firstQuestion = function(n, callback) {
+      testController.firstQuestion = function(state, len, callback) {
+        assert.deepEqual(state, current_user_state)
+        assert.equal(len, 1)
         assert.isTrue(true);
         done();
       };
   
-      testController.handleMessage("0", "0", 1, function(message) {});
+      testSchema.JobQuestion().create({job_type_id: 1, question_id: 1, created_at: new Date(), updated_at: new Date(), position: 1}, function(e,r){});
+      
+      setTimeout(function() {
+        testController.handleMessage("0", "0", 1, function(message) {});
+      }, 35);
+
     });
   });
 
