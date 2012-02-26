@@ -15,45 +15,38 @@ var userController = new UserController(mySchema, {});
 
 function onRequest(request, response) {
   response.writeHead(200, {"Content-Type": "text/html"});
-  
-  Schema.prototype.Location().find({id: 1}, function(e, r) {
-    console.log(e);
-    console.log(r);
-  });
-  
-  response.end();
-  
-  // var data = '';
-  // request.on('data', function (chunk) {
-  //   data += chunk;
-  // });
-  // 
-  // request.on('end', function() {
-  //   var dataHash = querystring.parse(data);
-  // 
-  //   
-  //   if (dataHash.SmsStatus == 'sent') {
-  //     console.log("got sent")
-  //     userController.updateUserStateFromNumber(dataHash.To, {location_id: 1});
-  //   } else {
-  //     console.log("From: " + dataHash.From + " Body: " + dataHash.Body);
-  //     userController.handleMessage(dataHash.From, dataHash.Body, 1, function(message) {
-  //       response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-  //       response.write("<Response>");
-  // 
-  //       response.write("<Sms>");
-  //       for (var i in message) {
-  //         var line = message[i];
-  //         response.write(line);
-  //         response.write("\n");
-  //       }
-  //       response.write("</Sms>");
-  //       response.write("</Response>");
-  //       response.end();
-  //     });
-  //   };
-  // });
-};
+    
+  var data = '';
+    request.on('data', function (chunk) {
+      data += chunk;
+    });
+    
+    request.on('end', function() {
+      var dataHash = querystring.parse(data);
+    
+      
+      if (dataHash.SmsStatus == 'sent') {
+        console.log("got sent")
+        userController.updateUserStateFromNumber(dataHash.To, {location_id: 1});
+      } else {
+        console.log("From: " + dataHash.From + " Body: " + dataHash.Body);
+        userController.handleMessage(dataHash.From, dataHash.Body, 1, function(message) {
+          response.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+          response.write("<Response>");
+    
+          response.write("<Sms>");
+          for (var i in message) {
+            var line = message[i];
+            response.write(line);
+            response.write("\n");
+          }
+          response.write("</Sms>");
+          response.write("</Response>");
+          response.end();
+        });
+      };
+    });
+  };
 
 var port = process.env.PORT || 80
 http.createServer(onRequest).listen(port);
