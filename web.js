@@ -9,8 +9,13 @@ process.addListener('uncaughtException', function (err, stack) {
 var UserController = require('./lib/user_controller');
 var Schema = require('./lib/schema');
 
-// gvughgqdyu:_Dfxp2ZjjBtcmxI4mhVD@ec2-50-16-197-136.compute-1.amazonaws.com/gvughgqdy
-var mySchema = new Schema(process.env.DATABASE_URL);
+var mySchema;
+if (process.env.NODE_ENV == "production") {
+  mySchema = new Schema(process.env.DATABASE_URL); 
+} else {  
+  mySchema = new Schema("tcp://localhost:5432/capon_test");
+}
+
 var userController = new UserController(mySchema, {});
 
 function onRequest(request, response) {

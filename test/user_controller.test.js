@@ -8,7 +8,7 @@ describe('UserController', function(){
   var UserController = require('../lib/user_controller');
   var Schema = require('../lib/schema');
 
-  var testSchema = new Schema("tcp://localhost:5432/capon_test");
+  var testSchema = new Schema("psql://localhost:5432/capon_test");
 
   var testController = new UserController(testSchema, {});
   // methods I stub at some point
