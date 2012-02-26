@@ -17,7 +17,7 @@ function onRequest(request, response) {
   response.writeHead(200, {"Content-Type": "text/html"});
   
   Schema.prototype.Location().find({id: 1}, function(e, r) {
-    console.log(err);
+    console.log(e);
     console.log(r);
   });
   
