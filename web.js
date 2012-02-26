@@ -35,6 +35,7 @@ function onRequest(request, response) {
       if (dataHash.SmsStatus == 'sent') {
         console.log("got sent")
         userController.updateUserStateFromNumber(dataHash.To, {location_id: 1});
+        response.end();
       } else {
         console.log("From: " + dataHash.From + " Body: " + dataHash.Body);
         userController.handleMessage(dataHash.From, dataHash.Body, 1, function(message) {
