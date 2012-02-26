@@ -29,7 +29,9 @@ function onRequest(request, response) {
     request.on('end', function() {
       var dataHash = querystring.parse(data);
     
-      
+      console.log("GOT REQUEST")
+      console.log(request.url)
+      console.log(dataHash);
       if (dataHash.SmsStatus == 'sent') {
         console.log("got sent")
         userController.updateUserStateFromNumber(dataHash.To, {location_id: 1});
