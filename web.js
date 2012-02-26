@@ -22,11 +22,11 @@ var userController = new UserController(mySchema, {});
 
 function onRequest(request, response) {
   var matchLoc = request.url.match(/^\/(\d+)$/);
+  response.writeHead(200, {"Content-Type": "text/html"});
   var locationId;
   if (matchLoc) {
     locationId = matchLoc[1];
   } else {
-    response.writeHead(200, {"Content-Type": "text/html"});
     console.log("ummmmm");
     response.write("Invalid URL");
     
@@ -40,7 +40,6 @@ function onRequest(request, response) {
       if (data.length > 1e6) {
         // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
         console.log("AM I HERE?");
-        response.writeHead(200, {"Content-Type": "text/html"});
         response.write("Stop spamming!");
         request.end();
       }
