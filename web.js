@@ -21,13 +21,12 @@ if (process.env.NODE_ENV == "production") {
 var userController = new UserController(mySchema, {});
 
 function onRequest(request, response) {
-  response.writeHead(200, {"Content-Type": "text/html"});
-    
   var matchLoc = request.url.match(/^\/(\d+)$/);
   var locationId;
   if (matchLoc) {
     locationId = matchLoc[1];
   } else {
+    response.writeHead(200, {"Content-Type": "text/html"});
     response.write("Invalid URL");
     response.end();
     return
@@ -38,7 +37,9 @@ function onRequest(request, response) {
       data.push(chunk);
       if (data.length > 1e6) {
         // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-        request.connection.destroy();
+        response.writeHead(200, {"Content-Type": "text/html"});
+        response.write("Stop spamming!");
+        request.end();
       }
     });
     
