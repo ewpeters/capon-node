@@ -18,7 +18,7 @@ if (process.env.NODE_ENV == "production") {
   mySchema = new Schema("tcp://localhost:5432/capon_test");
 }
 
-var userController = new UserController(mySchema, {});
+var userController = new UserController(mySchema, {debug: true});
 
 function onRequest(request, response) {
   var matchLoc = request.url.match(/^\/(\d+)$/);

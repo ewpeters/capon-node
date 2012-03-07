@@ -10,7 +10,7 @@ describe('UserController', function(){
 
   var testSchema = new Schema("psql://localhost:5432/capon_test");
 
-  var testController = new UserController(testSchema, {});
+  var testController = new UserController(testSchema, {debug: false});
   // methods I stub at some point
   var GetUser          = testController.getUser;
   var GetLocation      = testController.getLocation;
